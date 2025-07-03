@@ -9,7 +9,8 @@
 ## 目录结构
 
 - [地图模块](./map)
-  - [Apollo Notes (一): 地图模块之高精地图详解](./map/高精地图/高精地图详解.md), [知乎链接]()
+  - [Apollo Notes (一): 地图模块之高精地图详解](./map/高精地图/高精地图详解.md), [知乎链接](https://zhuanlan.zhihu.com/p/1921517927062021124)
+  - [Apollo Notes (一): 地图模块之XML Parser详解](./map/XMLParser/xml_parser详解.md), [知乎链接]()
 - 感知模块 (Perception)
 - 预测模块 (Prediction)
 - 规划模块 (Planning)
