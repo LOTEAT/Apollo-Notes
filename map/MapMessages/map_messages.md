@@ -1,12 +1,12 @@
 ## Map Messages详解
 
-[知乎链接]()
+[知乎链接](https://zhuanlan.zhihu.com/p/1924476056364098460)
 
-[Github]()
+[Github](https://github.com/LOTEAT/Apollo-Notes/blob/master/map/MapMessages/map_messages.md)
 
 Map Messages是Apollo自动驾驶系统中地图模块的核心组件，承担着地图数据结构定义和信息传递的重要职责。作为整个地图系统的基础，Map Messages定义了Apollo系统中各种地图元素的数据格式。
 
-Apollo所有的message军事基于Protocol Buffers 2（protobuf2）来定义数据结构。Protocol Buffers是Google开发的一种语言无关、平台无关的序列化数据结构协议，具有高效、紧凑、可扩展等特点。如果你还不熟悉protobuf，建议先学习protobuf的基础知识，这将帮助你更好地理解Map Messages的定义和使用方式。
+Apollo所有的message是基于Protocol Buffers 2（protobuf2）来定义数据结构。Protocol Buffers是Google开发的一种语言无关、平台无关的序列化数据结构协议，具有高效、紧凑、可扩展等特点。如果你还不熟悉protobuf，建议先学习protobuf的基础知识，这将帮助你更好地理解Map Messages的定义和使用方式。
 
 
 

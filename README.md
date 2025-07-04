@@ -10,7 +10,7 @@
 
 - [地图模块](./map)
   - [Apollo Notes (一): 地图模块之高精地图详解](./map/高精地图/高精地图详解.md), [知乎链接](https://zhuanlan.zhihu.com/p/1921517927062021124)
-  - [Apollo Notes (二): 地图模块之Map Messages详解](./map/MapMessages/map_messages.md), [知乎链接]()
+  - [Apollo Notes (二): 地图模块之Map Messages详解](./map/MapMessages/map_messages.md), [知乎链接](https://zhuanlan.zhihu.com/p/1924476056364098460)
 - 感知模块 (Perception)
 - 预测模块 (Prediction)
 - 规划模块 (Planning)
