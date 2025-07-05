@@ -4,9 +4,9 @@
 -->
 ## XML Parser详解
 
-[知乎链接]()
+[知乎链接](https://zhuanlan.zhihu.com/p/1924866027306615655)
 
-[Github]()
+[Github](https://github.com/LOTEAT/Apollo-Notes/blob/master/map/XMLParser/xml_parser%E8%AF%A6%E8%A7%A3.md)
 
 Apollo的高精地图数据通常采用XML格式进行存储和描述。XML解析模块的主要作用是将这些结构化的地图数据文件高效、准确地解析为系统可用的数据结构，为自动驾驶各模块提供基础的地图信息支撑。想要理解清楚XML Parser，务必要清楚的了解这个地图的XML架构，否则看完这篇博客依旧会是云里雾里的。
 
