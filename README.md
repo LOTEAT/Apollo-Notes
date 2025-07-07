@@ -16,6 +16,7 @@
   - [Apollo Notes (五): 地图模块之ProtoOrganizer详解](./map/ProtoOrganizer/proto_organizer.md), [知乎链接](https://zhuanlan.zhihu.com/p/1925574451619169650)
   - [Apollo Notes (六): 地图模块之BBox详解](./map/BBox/bbox.md), [知乎链接](https://zhuanlan.zhihu.com/p/1925506308330723138)
   - [Apollo Notes (七): 地图模块之BBoxKDTree详解](./map/BBoxKDTree/bbox_kdtree.md), [知乎链接](https://zhuanlan.zhihu.com/p/1925648424105116458)
+  - [Apollo Notes (八): 地图模块之LineSegment2d详解](./map/LineSegment2d/line_segment2d.md), [知乎链接]()
 - 感知模块 (Perception)
 - 预测模块 (Prediction)
 - 规划模块 (Planning)
