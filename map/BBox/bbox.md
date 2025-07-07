@@ -4,9 +4,9 @@
 -->
 ## BBox详解
 
-[知乎链接]()
+[知乎链接](https://zhuanlan.zhihu.com/p/1925506308330723138)
 
-[Github]()
+[Github](https://github.com/LOTEAT/Apollo-Notes/blob/master/map/BBox/bbox.md)
 
 本篇博客是介绍`ProtoOrganizer`的过渡篇，主要介绍一下apollo中实现的`AABox2d`类。
 
