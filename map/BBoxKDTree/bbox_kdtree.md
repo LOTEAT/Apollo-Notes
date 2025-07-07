@@ -4,9 +4,9 @@
 -->
 ## BBoxKDTree详解
 
-[知乎链接]()
+[知乎链接](https://zhuanlan.zhihu.com/p/1925648424105116458)
 
-[Github]()
+[Github](https://github.com/LOTEAT/Apollo-Notes/blob/master/map/BBoxKDTree/bbox_kdtree.md)
 
 本篇博客主要介绍一下apollo中实现的`AABoxKDTree2d`类。`KDTree`的原理比较简单，这里就不再介绍了，可以自行查阅资料了解。
 
@@ -364,9 +364,91 @@ struct AABoxKDTreeParams {
     }
   }
 ```
+这个就是KDTree的核心查找逻辑，总结如下：
+- 剪枝当前节点（太远则直接return）
+- 搜索近侧子树
+- 更新当前节点内所有物体的最小距离
+- 剪枝最小距离是否接近0
+- 视情况搜索远侧子树
 
+回到代码来：
+```cpp
+    if (LowerDistanceSquareToPoint(point) >= *min_distance_sqr - kMathEpsilon) {
+      return;
+    }
+```
+这里就是判断当前节点，及其子节点是否有必要继续搜索。
+
+搜索近侧的子树，如果当前最小距离已经接近0，那么就可以直接返回：
+```cpp
+    const double pvalue = (partition_ == PARTITION_X ? point.x() : point.y());
+    const bool search_left_first = (pvalue < partition_position_);
+    if (search_left_first) {
+      if (left_subnode_ != nullptr) {
+        left_subnode_->GetNearestObjectInternal(point, min_distance_sqr,
+                                                nearest_object);
+      }
+    } else {
+      if (right_subnode_ != nullptr) {
+        right_subnode_->GetNearestObjectInternal(point, min_distance_sqr,
+                                                 nearest_object);
+      }
+    }
+    if (*min_distance_sqr <= kMathEpsilon) {
+      return;
+    }
+```
+由于递归调用的关系，第一次执行到这个地方的时候，实际上已经是出于叶节点了。对叶节点中所有的object进行循环遍历，找到距离最近的节点，并更新最小距离。
+```cpp
+    if (search_left_first) {
+      for (int i = 0; i < num_objects_; ++i) {
+        const double bound = objects_sorted_by_min_bound_[i];
+        if (bound > pvalue && Square(bound - pvalue) > *min_distance_sqr) {
+          break;
+        }
+        ObjectPtr object = objects_sorted_by_min_[i];
+        const double distance_sqr = object->DistanceSquareTo(point);
+        if (distance_sqr < *min_distance_sqr) {
+          *min_distance_sqr = distance_sqr;
+          *nearest_object = object;
+        }
+      }
+    } else {
+      for (int i = 0; i < num_objects_; ++i) {
+        const double bound = objects_sorted_by_max_bound_[i];
+        if (bound < pvalue && Square(bound - pvalue) > *min_distance_sqr) {
+          break;
+        }
+        ObjectPtr object = objects_sorted_by_max_[i];
+        const double distance_sqr = object->DistanceSquareTo(point);
+        if (distance_sqr < *min_distance_sqr) {
+          *min_distance_sqr = distance_sqr;
+          *nearest_object = object;
+        }
+      }
+    }
+```
+接下来，如果最小距离接近0，那么直接返回即可，否则就对右侧节点继续寻找：
+```cpp
+    if (*min_distance_sqr <= kMathEpsilon) {
+      return;
+    }
+    if (search_left_first) {
+      if (right_subnode_ != nullptr) {
+        right_subnode_->GetNearestObjectInternal(point, min_distance_sqr,
+                                                 nearest_object);
+      }
+    } else {
+      if (left_subnode_ != nullptr) {
+        left_subnode_->GetNearestObjectInternal(point, min_distance_sqr,
+                                                nearest_object);
+      }
+    }
+```
+至此，这就是这个KDTree的逻辑。
 
 ### 3. AABoxKDTree2d
+`AABoxKDTree2d`本质上就是对`AABoxKDTree2dNode`的高级封装。理解了`AABoxKDTree2dNode`也就基本理解了`AABoxKDTree2d`。
 ```cpp
 template <class ObjectType>
 class AABoxKDTree2d {
