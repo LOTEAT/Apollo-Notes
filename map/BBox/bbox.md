@@ -8,7 +8,7 @@
 
 [Github](https://github.com/LOTEAT/Apollo-Notes/blob/master/map/BBox/bbox.md)
 
-本篇博客是介绍`ProtoOrganizer`的过渡篇，主要介绍一下apollo中实现的`AABox2d`类。
+本篇博客主要介绍一下apollo中实现的`AABox2d`类。
 
 ### 1. AABox2d
 

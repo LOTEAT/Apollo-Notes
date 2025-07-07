@@ -2,11 +2,11 @@
  * @Author: LOTEAT
  * @Date: 2025-07-07 13:29:52
 -->
-## BBox详解
+## Internal结构体详解
 
-[知乎链接]()
+[知乎链接](https://zhuanlan.zhihu.com/p/1925550940817192039)
 
-[Github]()
+[Github](https://github.com/LOTEAT/Apollo-Notes/blob/master/map/InternalStruct/internal_struct.md)
 
 本篇博客是介绍`ProtoOrganizer`的过渡篇，主要介绍一下apollo中实现的一系列中间结构体。
 
