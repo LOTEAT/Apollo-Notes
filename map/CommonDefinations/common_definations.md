@@ -5,9 +5,9 @@
 
 ## Common Definations详解
 
-[知乎链接]()
+[知乎链接](https://zhuanlan.zhihu.com/p/1931734913830351038)
 
-[Github]()
+[Github](https://github.com/LOTEAT/Apollo-Notes/blob/master/map/CommonDefinations/common_definations.md)
 
 本篇博客主要介绍一下apollo中实现的一些common definations，这些才是真正供后续模块所使用的。
 

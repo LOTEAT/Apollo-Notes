@@ -5,9 +5,9 @@
 
 ## LineSegment2d详解
 
-[知乎链接]()
+[知乎链接](https://zhuanlan.zhihu.com/p/1931734187502735684)
 
-[Github]()
+[Github](https://github.com/LOTEAT/Apollo-Notes/blob/master/map/LineSegment2d/line_segment2d.md)
 
 本篇博客主要介绍一下apollo中实现的`LineSegment2d`类。这个类对一段segment的line进行了封装。
 
