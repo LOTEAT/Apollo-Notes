@@ -628,3 +628,506 @@ bool LaneInfo::GetProjection(const Vec2d &point, const double heading,
   return true;
 }
 ```
+
+`GetProjection` 函数的核心思想是将空间中的点投影到车道中心线（由一系列线段组成）上，通过遍历所有线段，找到距离点最近的线段，并计算该点在该线段上的投影位置。投影的本质是利用向量点积和投影公式，将点到线段的向量分解为沿线段方向和垂直方向的分量，从而得到累计弧长s（即点在中心线上的投影距离）和横向距离lateral（即点到中心线的最短距离，带符号表示左右）。
+
+#### 6.7 UpdateOverlaps
+```cpp
+
+void LaneInfo::PostProcess(const HDMapImpl &map_instance) {
+  UpdateOverlaps(map_instance);
+}
+
+void LaneInfo::UpdateOverlaps(const HDMapImpl &map_instance) {
+  for (const auto &overlap_id : overlap_ids_) {
+    const auto &overlap_ptr =
+        map_instance.GetOverlapById(MakeMapId(overlap_id));
+    if (overlap_ptr == nullptr) {
+      continue;
+    }
+    overlaps_.emplace_back(overlap_ptr);
+    for (const auto &object : overlap_ptr->overlap().object()) {
+      const auto &object_id = object.id().id();
+      if (object_id == lane_.id().id()) {
+        continue;
+      }
+      const auto &object_map_id = MakeMapId(object_id);
+      if (map_instance.GetLaneById(object_map_id) != nullptr) {
+        cross_lanes_.emplace_back(overlap_ptr);
+      }
+      if (map_instance.GetSignalById(object_map_id) != nullptr) {
+        signals_.emplace_back(overlap_ptr);
+      }
+      if (map_instance.GetYieldSignById(object_map_id) != nullptr) {
+        yield_signs_.emplace_back(overlap_ptr);
+      }
+      if (map_instance.GetStopSignById(object_map_id) != nullptr) {
+        stop_signs_.emplace_back(overlap_ptr);
+      }
+      if (map_instance.GetCrosswalkById(object_map_id) != nullptr) {
+        crosswalks_.emplace_back(overlap_ptr);
+      }
+      if (map_instance.GetJunctionById(object_map_id) != nullptr) {
+        junctions_.emplace_back(overlap_ptr);
+      }
+      if (map_instance.GetClearAreaById(object_map_id) != nullptr) {
+        clear_areas_.emplace_back(overlap_ptr);
+      }
+      if (map_instance.GetSpeedBumpById(object_map_id) != nullptr) {
+        speed_bumps_.emplace_back(overlap_ptr);
+      }
+      if (map_instance.GetParkingSpaceById(object_map_id) != nullptr) {
+        parking_spaces_.emplace_back(overlap_ptr);
+      }
+      if (map_instance.GetPNCJunctionById(object_map_id) != nullptr) {
+        pnc_junctions_.emplace_back(overlap_ptr);
+      }
+    }
+  }
+}
+```
+
+`UpdateOverlaps`函数用于根据车道的重叠ID列表，遍历所有重叠区域，并将与当前车道相关的信号灯、让行标志、停车标志、人行横道、路口、清除区、减速带、停车位、PNC路口等对象的重叠信息分类存储到对应的成员变量中。这里是使用了前向声明，所以这里就先不对`HDMapImpl`进行介绍了。
+
+#### 6.8 CreateKDTree
+```cpp
+void LaneInfo::CreateKDTree() {
+  apollo::common::math::AABoxKDTreeParams params;
+  params.max_leaf_dimension = 5.0;  // meters.
+  params.max_leaf_size = 16;
+
+  segment_box_list_.clear();
+  for (size_t id = 0; id < segments_.size(); ++id) {
+    const auto &segment = segments_[id];
+    segment_box_list_.emplace_back(
+        apollo::common::math::AABox2d(segment.start(), segment.end()), this,
+        &segment, id);
+  }
+  lane_segment_kdtree_.reset(new LaneSegmentKDTree(segment_box_list_, params));
+}
+```
+`CreateKDTree`函数用于为当前车道的所有线段构建AABoxKDTree2d空间索引结构。它会遍历车道中心线的每一段，生成对应的包围盒对象（LaneSegmentBox），并根据设定的参数初始化KD树。
+
+
+### 7. JunctionInfo
+```cpp
+class JunctionInfo {
+ public:
+  explicit JunctionInfo(const Junction &junction);
+
+  const Id &id() const { return junction_.id(); }
+  const Junction &junction() const { return junction_; }
+  const apollo::common::math::Polygon2d &polygon() const { return polygon_; }
+
+  const std::vector<Id> &OverlapStopSignIds() const {
+    return overlap_stop_sign_ids_;
+  }
+
+ private:
+  friend class HDMapImpl;
+  void Init();
+  void PostProcess(const HDMapImpl &map_instance);
+  void UpdateOverlaps(const HDMapImpl &map_instance);
+
+ private:
+  const Junction &junction_;
+  apollo::common::math::Polygon2d polygon_;
+
+  std::vector<Id> overlap_stop_sign_ids_;
+  std::vector<Id> overlap_ids_;
+};
+
+JunctionInfo::JunctionInfo(const Junction &junction) : junction_(junction) {
+  Init();
+}
+
+void JunctionInfo::Init() {
+  polygon_ = ConvertToPolygon2d(junction_.polygon());
+  CHECK_GT(polygon_.num_points(), 2);
+
+  for (const auto &overlap_id : junction_.overlap_id()) {
+    overlap_ids_.emplace_back(overlap_id);
+  }
+}
+
+void JunctionInfo::PostProcess(const HDMapImpl &map_instance) {
+  UpdateOverlaps(map_instance);
+}
+
+void JunctionInfo::UpdateOverlaps(const HDMapImpl &map_instance) {
+  for (const auto &overlap_id : overlap_ids_) {
+    const auto &overlap_ptr = map_instance.GetOverlapById(overlap_id);
+    if (overlap_ptr == nullptr) {
+      continue;
+    }
+
+    for (const auto &object : overlap_ptr->overlap().object()) {
+      const auto &object_id = object.id().id();
+      if (object_id == id().id()) {
+        continue;
+      }
+
+      if (object.has_stop_sign_overlap_info()) {
+        overlap_stop_sign_ids_.push_back(object.id());
+      }
+    }
+  }
+}
+```
+
+`JunctionInfo`类用于封装和管理地图中路口（Junction）的相关信息。
+该类包含路口的ID、原始Junction对象、多边形区域，以及与路口重叠的停车标志ID集合。
+
+### 8. SignalInfo
+```cpp
+class SignalInfo {
+ public:
+  explicit SignalInfo(const Signal &signal);
+
+  const Id &id() const { return signal_.id(); }
+  const Signal &signal() const { return signal_; }
+  const std::vector<apollo::common::math::LineSegment2d> &segments() const {
+    return segments_;
+  }
+
+ private:
+  void Init();
+
+ private:
+  const Signal &signal_;
+  std::vector<apollo::common::math::LineSegment2d> segments_;
+};
+
+SignalInfo::SignalInfo(const Signal &signal) : signal_(signal) { Init(); }
+
+void SignalInfo::Init() {
+  for (const auto &stop_line : signal_.stop_line()) {
+    SegmentsFromCurve(stop_line, &segments_);
+  }
+  ACHECK(!segments_.empty());
+  std::vector<Vec2d> points;
+  for (const auto &segment : segments_) {
+    points.emplace_back(segment.start());
+    points.emplace_back(segment.end());
+  }
+  CHECK_GT(points.size(), 0U);
+}
+```
+SignalInfo类用于封装和管理地图中的信号灯信息。该类包含信号灯的ID、原始Signal对象，以及所有停止线的线段集合。在初始化时，会遍历信号灯关联的所有停止线，将其曲线转换为线段并存储。
+
+### 9. CrosswalkInfo
+```cpp
+class CrosswalkInfo {
+ public:
+  explicit CrosswalkInfo(const Crosswalk &crosswalk);
+
+  const Id &id() const { return crosswalk_.id(); }
+  const Crosswalk &crosswalk() const { return crosswalk_; }
+  const apollo::common::math::Polygon2d &polygon() const { return polygon_; }
+
+ private:
+  void Init();
+
+ private:
+  const Crosswalk &crosswalk_;
+  apollo::common::math::Polygon2d polygon_;
+};
+
+CrosswalkInfo::CrosswalkInfo(const Crosswalk &crosswalk)
+    : crosswalk_(crosswalk) {
+  Init();
+}
+
+void CrosswalkInfo::Init() {
+  polygon_ = ConvertToPolygon2d(crosswalk_.polygon());
+  CHECK_GT(polygon_.num_points(), 2);
+}
+```
+CrosswalkInfo类用于封装和管理地图中的人行横道（Crosswalk）信息。该类包含人行横道的ID、原始Crosswalk对象，以及其多边形区域。
+
+### 10. StopSignInfo
+```cpp
+class StopSignInfo {
+ public:
+  explicit StopSignInfo(const StopSign &stop_sign);
+
+  const Id &id() const { return stop_sign_.id(); }
+  const StopSign &stop_sign() const { return stop_sign_; }
+  const std::vector<apollo::common::math::LineSegment2d> &segments() const {
+    return segments_;
+  }
+  const std::vector<Id> &OverlapLaneIds() const { return overlap_lane_ids_; }
+  const std::vector<Id> &OverlapJunctionIds() const {
+    return overlap_junction_ids_;
+  }
+
+ private:
+  friend class HDMapImpl;
+  void init();
+  void PostProcess(const HDMapImpl &map_instance);
+  void UpdateOverlaps(const HDMapImpl &map_instance);
+
+ private:
+  const StopSign &stop_sign_;
+  std::vector<apollo::common::math::LineSegment2d> segments_;
+
+  std::vector<Id> overlap_lane_ids_;
+  std::vector<Id> overlap_junction_ids_;
+  std::vector<Id> overlap_ids_;
+};
+
+StopSignInfo::StopSignInfo(const StopSign &stop_sign) : stop_sign_(stop_sign) {
+  init();
+}
+
+void StopSignInfo::init() {
+  for (const auto &stop_line : stop_sign_.stop_line()) {
+    SegmentsFromCurve(stop_line, &segments_);
+  }
+  ACHECK(!segments_.empty());
+
+  for (const auto &overlap_id : stop_sign_.overlap_id()) {
+    overlap_ids_.emplace_back(overlap_id);
+  }
+}
+
+void StopSignInfo::PostProcess(const HDMapImpl &map_instance) {
+  UpdateOverlaps(map_instance);
+}
+
+void StopSignInfo::UpdateOverlaps(const HDMapImpl &map_instance) {
+  for (const auto &overlap_id : overlap_ids_) {
+    const auto &overlap_ptr = map_instance.GetOverlapById(overlap_id);
+    if (overlap_ptr == nullptr) {
+      continue;
+    }
+
+    for (const auto &object : overlap_ptr->overlap().object()) {
+      const auto &object_id = object.id().id();
+      if (object_id == id().id()) {
+        continue;
+      }
+
+      if (object.has_junction_overlap_info()) {
+        overlap_junction_ids_.push_back(object.id());
+      } else if (object.has_lane_overlap_info()) {
+        overlap_lane_ids_.push_back(object.id());
+      }
+    }
+  }
+  if (overlap_junction_ids_.empty()) {
+    AWARN << "stop sign " << id().id() << "has no overlap with any junction.";
+  }
+}
+```
+
+`StopSignInfo`类用于封装和管理地图中的停车标志（StopSign）信息。该类包含停车标志的ID、原始StopSign对象、所有停止线的线段集合，以及与之重叠的车道ID和路口ID集合。
+
+### 11. YieldSignInfo
+```cpp
+class YieldSignInfo {
+ public:
+  explicit YieldSignInfo(const YieldSign &yield_sign);
+
+  const Id &id() const { return yield_sign_.id(); }
+  const YieldSign &yield_sign() const { return yield_sign_; }
+  const std::vector<apollo::common::math::LineSegment2d> &segments() const {
+    return segments_;
+  }
+
+ private:
+  void Init();
+
+ private:
+  const YieldSign &yield_sign_;
+  std::vector<apollo::common::math::LineSegment2d> segments_;
+};
+
+YieldSignInfo::YieldSignInfo(const YieldSign &yield_sign)
+    : yield_sign_(yield_sign) {
+  Init();
+}
+
+void YieldSignInfo::Init() {
+  for (const auto &stop_line : yield_sign_.stop_line()) {
+    SegmentsFromCurve(stop_line, &segments_);
+  }
+  // segments_from_curve(yield_sign_.stop_line(), &segments_);
+  ACHECK(!segments_.empty());
+}
+```
+`YieldSignInfo`用于封装地图中的让行标志（YieldSign）信息，主要负责解析和存储让行标志的停止线几何数据。
+
+### 12. ClearAreaInfo
+```cpp
+class ClearAreaInfo {
+ public:
+  explicit ClearAreaInfo(const ClearArea &clear_area);
+
+  const Id &id() const { return clear_area_.id(); }
+  const ClearArea &clear_area() const { return clear_area_; }
+  const apollo::common::math::Polygon2d &polygon() const { return polygon_; }
+
+ private:
+  void Init();
+
+ private:
+  const ClearArea &clear_area_;
+  apollo::common::math::Polygon2d polygon_;
+};
+
+OverlapInfo::OverlapInfo(const Overlap &overlap) : overlap_(overlap) {}
+
+const ObjectOverlapInfo *OverlapInfo::GetObjectOverlapInfo(const Id &id) const {
+  for (const auto &object : overlap_.object()) {
+    if (object.id().id() == id.id()) {
+      return &object;
+    }
+  }
+  return nullptr;
+}
+```
+
+
+
+### 13. SpeedBumpInfo
+```cpp
+class SpeedBumpInfo {
+ public:
+  explicit SpeedBumpInfo(const SpeedBump &speed_bump);
+
+  const Id &id() const { return speed_bump_.id(); }
+  const SpeedBump &speed_bump() const { return speed_bump_; }
+  const std::vector<apollo::common::math::LineSegment2d> &segments() const {
+    return segments_;
+  }
+
+ private:
+  void Init();
+
+ private:
+  const SpeedBump &speed_bump_;
+  std::vector<apollo::common::math::LineSegment2d> segments_;
+};
+```
+
+### 14. OverlapInfo
+```cpp
+class OverlapInfo {
+ public:
+  explicit OverlapInfo(const Overlap &overlap);
+
+  const Id &id() const { return overlap_.id(); }
+  const Overlap &overlap() const { return overlap_; }
+  const ObjectOverlapInfo *GetObjectOverlapInfo(const Id &id) const;
+
+ private:
+  const Overlap &overlap_;
+};
+```
+
+OverlapInfo用于封装地图中重叠区域（Overlap）的信息，支持通过ID检索与该重叠区域相关的对象，
+
+### 15. RoadInfo
+```cpp
+class RoadInfo {
+ public:
+  explicit RoadInfo(const Road &road);
+  const Id &id() const { return road_.id(); }
+  const Road &road() const { return road_; }
+  const std::vector<RoadSection> &sections() const { return sections_; }
+
+  const Id &junction_id() const { return road_.junction_id(); }
+  bool has_junction_id() const { return road_.has_junction_id(); }
+
+  const std::vector<RoadBoundary> &GetBoundaries() const;
+
+  apollo::hdmap::Road_Type type() const { return road_.type(); }
+
+ private:
+  Road road_;
+  std::vector<RoadSection> sections_;
+  std::vector<RoadBoundary> road_boundaries_;
+};
+
+RoadInfo::RoadInfo(const Road &road) : road_(road) {
+  for (const auto &section : road_.section()) {
+    sections_.push_back(section);
+    road_boundaries_.push_back(section.boundary());
+  }
+}
+
+const std::vector<RoadBoundary> &RoadInfo::GetBoundaries() const {
+  return road_boundaries_;
+}
+```
+RoadInfo用于封装和管理地图中的道路（Road）信息，包含道路的ID、原始Road对象、各个路段（Section）及其边界。
+
+
+### 16. ParkingSpaceInfo
+```cpp
+class ParkingSpaceInfo {
+ public:
+  explicit ParkingSpaceInfo(const ParkingSpace &parkingspace);
+  const Id &id() const { return parking_space_.id(); }
+  const ParkingSpace &parking_space() const { return parking_space_; }
+  const apollo::common::math::Polygon2d &polygon() const { return polygon_; }
+
+ private:
+  void Init();
+
+ private:
+  const ParkingSpace &parking_space_;
+  apollo::common::math::Polygon2d polygon_;
+};
+
+
+ParkingSpaceInfo::ParkingSpaceInfo(const ParkingSpace &parking_space)
+    : parking_space_(parking_space) {
+  Init();
+}
+
+void ParkingSpaceInfo::Init() {
+  polygon_ = ConvertToPolygon2d(parking_space_.polygon());
+  CHECK_GT(polygon_.num_points(), 2);
+}
+
+```
+ParkingSpaceInfo用于封装和管理地图中的停车位（ParkingSpace）信息，包含停车位的ID、原始ParkingSpace对象及其多边形区域。
+
+### 17. PNCJunctionInfo
+```cpp
+class PNCJunctionInfo {
+ public:
+  explicit PNCJunctionInfo(const PNCJunction &pnc_junction);
+
+  const Id &id() const { return junction_.id(); }
+  const PNCJunction &pnc_junction() const { return junction_; }
+  const apollo::common::math::Polygon2d &polygon() const { return polygon_; }
+
+ private:
+  void Init();
+
+ private:
+  const PNCJunction &junction_;
+  apollo::common::math::Polygon2d polygon_;
+
+  std::vector<Id> overlap_ids_;
+};
+
+PNCJunctionInfo::PNCJunctionInfo(const PNCJunction &pnc_junction)
+    : junction_(pnc_junction) {
+  Init();
+}
+
+void PNCJunctionInfo::Init() {
+  polygon_ = ConvertToPolygon2d(junction_.polygon());
+  CHECK_GT(polygon_.num_points(), 2);
+
+  for (const auto &overlap_id : junction_.overlap_id()) {
+    overlap_ids_.emplace_back(overlap_id);
+  }
+}
+```
+PNCJunctionInfo用于封装和管理地图中的PNC路口（PNCJunction）信息，包含路口的ID、原始PNCJunction对象、多边形区域及其重叠ID。
+
