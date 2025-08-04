@@ -18,6 +18,10 @@
   - [Apollo Notes (七): 地图模块之BBoxKDTree详解](./map/BBoxKDTree/bbox_kdtree.md), [知乎链接](https://zhuanlan.zhihu.com/p/1925648424105116458)
   - [Apollo Notes (八): 地图模块之LineSegment2d详解](./map/LineSegment2d/line_segment2d.md), [知乎链接](https://zhuanlan.zhihu.com/p/1931734187502735684)
   - [Apollo Notes (九): 地图模块之Common Definations详解](./map/CommonDefinations/common_definations.md), [知乎链接](https://zhuanlan.zhihu.com/p/1931734913830351038)
+  - [Apollo Notes (十): 地图模块之HDMapUtil详解](./map/HDMapUtil/hdmap_util.md), [知乎链接]()
+  - [Apollo Notes (十一): 地图模块之HDMapImpl详解](./map/HDMapImpl/hdmap_impl.md), [知乎链接]()
+  - [Apollo Notes (十二): 地图模块之HDMap详解](./map/HDMap/hdmap.md), [知乎链接]()
+
 - 感知模块 (Perception)
 - 预测模块 (Prediction)
 - 规划模块 (Planning)
