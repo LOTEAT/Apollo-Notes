@@ -22,6 +22,9 @@
   - [Apollo Notes (十一): 地图模块之HDMapImpl详解](./map/HDMapImpl/hdmap_impl.md), [知乎链接](https://zhuanlan.zhihu.com/p/1935729606754796461)
   - [Apollo Notes (十二): 地图模块之HDMap详解](./map/HDMap/hdmap.md), [知乎链接](https://zhuanlan.zhihu.com/p/1935730286999602574)
 
+- 导航模块 (Routing) 
+  - [Apollo Notes (十三): 导航模块之RoutingComponent详解](./routing/routing_component/routing_component.md), [知乎链接]()
+
 - 感知模块 (Perception)
 - 预测模块 (Prediction)
 - 规划模块 (Planning)
