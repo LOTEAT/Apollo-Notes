@@ -5,9 +5,8 @@
 
 ## HDMapImpl详解
 
-[知乎链接]()
-
-[Github]()
+[知乎链接](https://zhuanlan.zhihu.com/p/1935729606754796461)
+[Github](https://github.com/LOTEAT/Apollo-Notes/blob/master/map/HDMapImpl/hdmap_impl.md)
 
 本篇博客主要介绍一下apollo中实现的`HDMapImpl`，这是`HDMap`的中间件。
 

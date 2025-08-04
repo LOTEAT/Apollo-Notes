@@ -5,9 +5,9 @@
 
 ## HDMapUtil详解
 
-[知乎链接]()
+[知乎链接](https://zhuanlan.zhihu.com/p/1935727865837647323)
 
-[Github]()
+[Github](https://github.com/LOTEAT/Apollo-Notes/blob/master/map/HDMapUtil/hdmap_util.md)
 
 本篇博客主要介绍一下apollo中HDMap的辅助工具类`HDMapUtil`。
 
