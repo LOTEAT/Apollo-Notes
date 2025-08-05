@@ -4,9 +4,9 @@
 -->
 ## RoutingComponent详解
 
-[知乎链接]()
+[知乎链接](https://zhuanlan.zhihu.com/p/1936118805467227966)
 
-[Github]()
+[Github](https://github.com/LOTEAT/Apollo-Notes/blob/master/routing/routing_component/routing_component.md)
 
 本篇博客主要介绍一下apollo中的`RoutingComponent`。Component 是 Cyber RT 框架（Apollo 的通信框架）中最核心的构建模块之一，类似于一个功能单元或进程内的可独立运行实体，用于处理感知、规划、控制等各个子系统中的具体任务。
 
