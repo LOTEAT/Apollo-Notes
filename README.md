@@ -23,8 +23,8 @@
   - [Apollo Notes (十二): 地图模块之HDMap详解](./map/HDMap/hdmap.md), [知乎链接](https://zhuanlan.zhihu.com/p/1935730286999602574)
 
 - cyber模块 (cyber)
-  - [Apollo Notes (十三)：cyber模块之macros详解](./cyber/macros/macros.md), [知乎链接]()
-  - [Apollo Notes (十四)：cyber模块之for_each详解](./cyber/for_each/for_each.md), [知乎链接]()
+  - [Apollo Notes (十三)：cyber模块之macros详解](./cyber/macros/macros.md), [知乎链接](https://zhuanlan.zhihu.com/p/1936016024702026293)
+  - [Apollo Notes (十四)：cyber模块之for_each详解](./cyber/for_each/for_each.md), [知乎链接](https://zhuanlan.zhihu.com/p/1936016848442327242)
 
 - 导航模块 (Routing) 
   - [Apollo Notes (十五): 导航模块之RoutingComponent详解](./routing/routing_component/routing_component.md), [知乎链接]()

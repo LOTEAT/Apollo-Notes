@@ -5,9 +5,9 @@
 
 ## for_each详解
 
-[知乎链接]()
+[知乎链接](https://zhuanlan.zhihu.com/p/1936016848442327242)
 
-[Github]()
+[Github](https://github.com/LOTEAT/Apollo-Notes/blob/master/cyber/for_each/for_each.md)
 
 ### 1. for_each
 

@@ -5,9 +5,9 @@
 
 ## Macros详解
 
-[知乎链接]()
+[知乎链接](https://zhuanlan.zhihu.com/p/1936016024702026293)
 
-[Github]()
+[Github](https://github.com/LOTEAT/Apollo-Notes/blob/master/cyber/macros/macros.md)
 
 ### 1. 分支优化
 ```cpp
