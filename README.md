@@ -27,7 +27,8 @@
   - [Apollo Notes (十四)：cyber模块之for_each详解](./cyber/for_each/for_each.md), [知乎链接](https://zhuanlan.zhihu.com/p/1936016848442327242)
 
 - 导航模块 (Routing) 
-  - [Apollo Notes (十五): 导航模块之RoutingComponent详解](./routing/routing_component/routing_component.md), [知乎链接]()
+  - [Apollo Notes (十五): 导航模块之Routing Messages详解](./routing/routing_msgs/routing_msgs.md), [知乎链接]()
+  - [Apollo Notes (十六): 导航模块之RoutingComponent详解](./routing/routing_component/routing_component.md), [知乎链接]()
 
 - 感知模块 (Perception)
 - 预测模块 (Prediction)
