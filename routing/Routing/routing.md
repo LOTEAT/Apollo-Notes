@@ -6,7 +6,7 @@
 
 [知乎链接]()
 
-[Github](https://github.com/LOTEAT/Apollo-Notes/blob/master/routing/routing/routing.md)
+[Github](https://github.com/LOTEAT/Apollo-Notes/blob/master/routing/Routing/routing.md)
 
 本篇博客主要介绍一下apollo中的`Routing`类。这是`RoutingComponent`中负责根据request生成response的类。
 
