@@ -5,7 +5,7 @@
 
 ## NodeSRange详解
 
-[知乎链接]()
+[知乎链接](https://zhuanlan.zhihu.com/p/1936724477841999629)
 
 [Github](https://github.com/LOTEAT/Apollo-Notes/blob/master/routing/NodeSRange/node_s_range.md)
 
