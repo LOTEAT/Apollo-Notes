@@ -3,7 +3,7 @@
  * @Date: 2025-08-25 20:43:05
 -->
 
-## Edge Creator详解
+## EdgeCreator详解
 
 [知乎链接]()
 
