@@ -5,7 +5,7 @@
 
 ## NodeCreator详解
 
-[知乎链接]()
+[知乎链接](https://zhuanlan.zhihu.com/p/1979175580260925751)
 
 [Github](https://github.com/LOTEAT/Apollo-Notes/blob/master/routing/NodeCreator/node_creator.md)
 

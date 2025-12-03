@@ -5,7 +5,7 @@
 
 ## EdgeCreator详解
 
-[知乎链接]()
+[知乎链接](https://zhuanlan.zhihu.com/p/1979175965251871000)
 
 [Github](https://github.com/LOTEAT/Apollo-Notes/blob/master/routing/EdgeCreator/edge_creator.md)
 
